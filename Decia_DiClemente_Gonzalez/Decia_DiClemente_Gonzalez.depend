@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1655135583 source:c:\users\juand\documents\utn\tp laboratorio\decia_diclemente_gonzalez\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
