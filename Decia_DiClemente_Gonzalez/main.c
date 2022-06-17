@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 // Estructura Domicilio
 typedef struct
 {
@@ -53,6 +52,9 @@ void pause();
 void altaDeClientes(char arregloChar[]);
 void cargaDeDomicilio(stCliente cliente);
 void cargaDeClientes(stCliente cliente);
+void bajaDeClientes(char arregloChar[]);
+
+
 
 
 int main()
@@ -97,12 +99,19 @@ int main()
 
         switch(opcionCliente1){
 
+        /// Alta de clientes
         case 1:
 
-            /// Alta de clientes
 
             altaDeClientes(arregloChar);
 
+
+            break;
+        /// Baja de clientes
+        case 2:
+
+
+            bajaDeClientes(arregloChar);
 
 
             break;
@@ -164,7 +173,7 @@ void pause(){
 
 /// Alta de clientes
 
-void verArchivo(char arregloChar[]){
+void verArchivo(char arregloChar[]){   /// Lee lo que el usuario haya ingresado en carga de clientes
 
     FILE * archivo=fopen(arregloChar, "rb");
 
@@ -203,18 +212,18 @@ void verArchivo(char arregloChar[]){
 }
 
 
-void cargaDeDomicilio(stCliente cliente){
+void cargaDeDomicilio(stCliente cliente){  /// Funcion exclusivamente para cargar el domicilio
 
     printf("\nIngrese el nombre de la calle del domicilio: ");
     fflush(stdin);
     gets(cliente.domicilio.nombreCalle);
 
     printf("\nIngrese la altura de la calle: ");
-    scanf("%i", &cliente.domicilio.alturaCalle);
+    scanf("%i", cliente.domicilio.alturaCalle);
 
 }
 
-void cargaDeClientes(stCliente cliente){
+void cargaDeClientes(stCliente  cliente){   /// Carga de clientes, se llama cuantas veces sea necesario en altaDeClientes
 
         printf("\nIngrese el nombre del cliente: ");
         fflush(stdin);
@@ -289,6 +298,46 @@ void altaDeClientes(char arregloChar[]){
     if(continuar=='s'){
 
         verArchivo(arregloChar);
+
+    }
+
+
+}
+
+
+/// Baja de clientes
+
+
+void bajaDeClientes(char arregloChar[]){
+
+    FILE * archivo = fopen(arregloChar, "rb");
+
+    stCliente cliente;
+
+    int idAux;
+
+    if(archivo != NULL){
+
+        printf("Que cliente quiere darle de baja? Ingrese el ID de este: ");
+        scanf("%i", &idAux);
+        printf("\n");
+
+        while(!feof(archivo)){
+
+            if((fread(&cliente.idCliente, sizeof(stCliente), 1, archivo)==idAux)){  /// Encuentra el id de cliente a bajar
+
+                cliente.bajaCliente=1;  /// Por si se tiene que ver el cliente bajado la condicion es 1 en bajaCliente
+
+            }
+
+        }
+
+
+        fclose(archivo);
+
+    }else{
+
+        printf("No se ha abierto el archivo correctamente\n");
 
     }
 
