@@ -437,7 +437,7 @@ void modificarCliente (char archivo[])
                             fwrite(&cliente, sizeof(stDomicilio), 1, buff);
 
                             printf("\nIngrese altura: \n");
-                            scanf("%i", domicilio.alturaCalle);
+                            scanf("%i", &domicilio.alturaCalle);
                             fseek(buff, sizeof(stDomicilio) * -1, SEEK_CUR);
                             fwrite(&cliente, sizeof(stDomicilio), 1, buff);
 
@@ -473,31 +473,28 @@ void modificarCliente (char archivo[])
 
 void anularPedido (char archivo[])
 {
-    FILE * buff;
-
-    buff = fopen(archivo, "r+b");
+    FILE * buff = buff = fopen(archivo, "r+b");
 
     stPedido pedido;
 
     int idAux;
 
-    if(archivo != NULL){
+    if(archivo != NULL)
+    {
 
         printf("Ingrese ID del pedido para realizar la baja: ");
         scanf("%i", &idAux);
         printf("\n");
 
-        while(!feof(archivo)){
-
-            if((fread(&pedido.idPedido, sizeof(stPedido), 1, archivo) == idAux)){
-
+        while(fread (&pedido, sizeof(stPedido), 1, buff) > 0)
+        {
+            if(pedido.idPedido == idAux)
+            {
                 pedido.pedidoAnulado = 1;  // 1 == pedido anulado
-
             }
-
         }
 
-        fclose(archivo);
+        fclose(buff);
 
     }else{
 
