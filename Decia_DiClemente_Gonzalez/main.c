@@ -46,7 +46,7 @@ typedef struct
 
 } stPedido;
 
-/// Funciones
+/// Funciones Clientes
 
 void pause();
 void altaDeClientes(char arregloChar[]);
@@ -54,6 +54,10 @@ void cargaDeDomicilio(stCliente cliente);
 void cargaDeClientes(stCliente cliente);
 void bajaDeClientes(char arregloChar[]);
 void modificarCliente (char archivo[]);
+
+///Funciones pedidos
+void anularPedido (char archivo[]);
+void modificarPedido (char archivo[]);
 
 
 int main()
@@ -454,6 +458,160 @@ void modificarCliente (char archivo[])
             }
 
             printf("\nDesea modificar otro usuario? (S/N): ");
+            fflush(stdin);
+            scanf("%c", &continuar);
+        }
+
+        fclose(buff);
+
+    } else
+    {
+        printf("\nNo se ha podido abrir el archivo\n");
+    }
+
+}
+
+void anularPedido (char archivo[])
+{
+    FILE * buff;
+
+    buff = fopen(archivo, "r+b");
+
+    stPedido pedido;
+
+    int idAux;
+
+    if(archivo != NULL){
+
+        printf("Ingrese ID del pedido para realizar la baja: ");
+        scanf("%i", &idAux);
+        printf("\n");
+
+        while(!feof(archivo)){
+
+            if((fread(&pedido.idPedido, sizeof(stPedido), 1, archivo) == idAux)){
+
+                pedido.pedidoAnulado = 1;  // 1 == pedido anulado
+
+            }
+
+        }
+
+        fclose(archivo);
+
+    }else{
+
+        printf("No se ha abierto el archivo correctamente\n");
+
+    }
+
+}
+
+// Modificar Pedido
+
+void modificarPedido (char archivo[])
+{
+    FILE * buff;
+
+    buff = fopen(archivo, "r+b");
+
+    stPedido pedido;
+    stFecha fecha;
+
+    char continuar = ' ';
+    int auxID;
+
+    // Variables para el switch
+    int opcion;
+    char continuar2 = ' ';
+    char anular = ' ';
+
+    if (archivo != NULL)
+    {
+        while (continuar == 's')
+        {
+            printf("\nSeleccione el ID para buscar el pedido a modificar: ");
+            fflush(stdin);
+            scanf("%i", &auxID);
+
+            while(fread (&pedido, sizeof(stPedido), 1, buff) > 0)
+            {
+                if(pedido.idPedido == auxID)
+                {
+                    printf("\nSeleccione el/los datos que desea modificar: \n");
+
+                    do {
+
+                        printf("\n1. Costo. \n");
+                        printf("\n2. Descripcion. \n");
+                        printf("\n3. Fecha \n");
+                        printf("\n4. Anular Pedido \n");
+
+                        scanf("%i", &opcion);
+
+                        switch(opcion)
+                        {
+
+                        case 1:
+
+                            printf("\nIngrese el nuevo costo: \n");
+                            scanf("%i", &pedido.costoPedido);
+                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
+                            fwrite(&pedido.costoPedido, sizeof(stPedido), 1, buff);
+
+                        break;
+
+                        case 2:
+
+                            printf("\nIngrese nueva descripcion: \n");
+                            gets(pedido.descripcionPedido);
+                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
+                            fwrite(&pedido.descripcionPedido, sizeof(stPedido), 1, buff);
+
+                        break;
+
+                        case 3:
+
+                            printf("\nIngrese nueva fecha: \n");
+
+                            printf("\nIngrese dia: ");
+                            scanf("%i", &fecha.dia);
+
+                            printf("\nIngrese mes: ");
+                            scanf("%i", &fecha.mes);
+
+                            printf("\nIngrese anio: ");
+                            scanf("%i", &fecha.anio);
+
+                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
+                            fwrite(&pedido.fecha, sizeof(stPedido), 1, buff);
+
+                        break;
+
+                        case 4:
+
+                            printf("\n:Desea anular el pedido?(S/N):  \n");
+                            fflush(stdin);
+                            scanf("%c", &anular);
+
+                            if(anular == 's')
+                            {
+                                anularPedido(archivo);
+                            }
+                        }
+
+                        rewind(buff);
+
+                        printf("\nDesea continuar modificando pedidos? ('s' es afirmativo): ");
+                        fflush(stdin);
+                        scanf("%c", &continuar2);
+
+                    } while (continuar2 == 's');
+
+                }
+            }
+
+            printf("\nDesea modificar otro pedido? (S/N): ");
             fflush(stdin);
             scanf("%c", &continuar);
         }
