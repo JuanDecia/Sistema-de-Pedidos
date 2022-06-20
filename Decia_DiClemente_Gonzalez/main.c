@@ -621,3 +621,81 @@ void modificarPedido (char archivo[])
     }
 
 }
+
+//Listar clientes
+//Ordenados por método de selección tomando en cuenta número de id del cliente.
+int BuscarPosMenor (stCliente cliente[],int pos,int validos){
+
+    int MiMenor=cliente[pos].idCliente;
+    int posMenor = pos;
+    int i = pos+1;
+
+    while(i<validos){
+        if(cliente[i].idCliente<MiMenor){
+            MiMenor=cliente[i].idCliente;
+            posMenor=1;
+        }
+        i++;
+    }
+    return posMenor;
+}
+
+void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos){
+    int i=0;
+    int pmenor;
+    stCliente aux;
+
+    while(i<validos){
+        pmenor=BuscarPosMenor(clientes,i,validos);
+        aux=clientes[pmenor];
+        clientes [pmenor]=clientes[i];
+        clientes[i]=aux;
+        i++;
+    }
+}
+
+
+
+//Pasar archivo a arreglo
+int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension){
+    FILE * buf=fopen(nombreArch,"rb");
+    stCliente aux;
+
+    int i =0;
+
+    if(buf){
+        while((fread(&aux,sizeof(stCliente),1,buf)>0)&& i<dimension){
+
+                clientes[i]=aux;
+                i++;
+        }
+        fclose(buf);
+    }
+    return i;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
