@@ -54,10 +54,25 @@ void cargaDeDomicilio(stCliente cliente);
 void cargaDeClientes(stCliente cliente);
 void bajaDeClientes(char arregloChar[]);
 void modificarCliente (char archivo[]);
+stCliente modificarApellido(stCliente cliente);
+stCliente modificarNombre(stCliente cliente);
+stCliente modificarMovil(stCliente cliente);
+stDomicilio modificardomicilio(stDomicilio domicilio);
+stCliente modificarEmail(stCliente cliente);
+
+
+
+// Funciones Listado de clientes
+int BuscarPosMenor (stCliente cliente[],int pos,int validos);
+void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos);
+int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension);
+void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos);
 
 ///Funciones pedidos
 void anularPedido (char archivo[]);
 void modificarPedido (char archivo[]);
+
+// Funciones listado y estadistica
 
 
 int main()
@@ -395,8 +410,7 @@ void modificarCliente (char archivo[])
 
                         case 1:
 
-                            printf("\nIngrese nuevo apellido: \n");
-                            gets(cliente.apellido);
+                            cliente=modificarApellido(cliente);
                             fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
                             fwrite(&cliente, sizeof(stCliente), 1, buff);
 
@@ -404,8 +418,7 @@ void modificarCliente (char archivo[])
 
                         case 2:
 
-                            printf("\nIngrese nuevo nombre: \n");
-                            gets(cliente.nombre);
+                            cliente=modificarNombre(cliente);
                             fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
                             fwrite(&cliente, sizeof(stCliente), 1, buff);
 
@@ -413,8 +426,7 @@ void modificarCliente (char archivo[])
 
                         case 3:
 
-                            printf("\nIngrese nuevo mail: \n");
-                            gets(cliente.mail);
+                            cliente=modificarEmail(cliente);
                             fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
                             fwrite(&cliente, sizeof(stCliente), 1, buff);
 
@@ -422,8 +434,7 @@ void modificarCliente (char archivo[])
 
                         case 4:
 
-                            printf("\nIngrese nuevo movil: \n");
-                            scanf("%i", &cliente.movil);
+                            cliente=modificarMovil(cliente);
                             fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
                             fwrite(&cliente, sizeof(stCliente), 1, buff);
 
@@ -431,15 +442,10 @@ void modificarCliente (char archivo[])
 
                         case 5:
 
-                            printf("\nIngrese nuevo domicilio: \n");
-                            gets(domicilio.nombreCalle);
+                            domicilio=modificardomicilio(domicilio);
                             fseek(buff, sizeof(stDomicilio) * -1, SEEK_CUR);
                             fwrite(&cliente, sizeof(stDomicilio), 1, buff);
 
-                            printf("\nIngrese altura: \n");
-                            scanf("%i", &domicilio.alturaCalle);
-                            fseek(buff, sizeof(stDomicilio) * -1, SEEK_CUR);
-                            fwrite(&cliente, sizeof(stDomicilio), 1, buff);
 
                         break;
 
@@ -470,6 +476,59 @@ void modificarCliente (char archivo[])
     }
 
 }
+
+//modularizacion de modificacion de clientes
+
+stCliente modificarNombre(stCliente cliente)
+{
+    printf("\nIngrese el nuevo nombre: ");
+    fflush(stdin);
+    gets(cliente.nombre);
+
+    return cliente;
+}
+
+stDomicilio modificardomicilio(stDomicilio domicilio)
+{
+    printf("\ningrese el nuevo domicilio: ");
+    fflush(stdin);
+    gets(domicilio.nombreCalle);
+
+    printf("\nIngrese la altura: ");
+    fflush(stdin);
+    scanf("%d",&domicilio.alturaCalle);
+
+    return domicilio;
+}
+
+stCliente modificarApellido(stCliente cliente)
+{
+    printf("\ningrese el nuevo Apellido: ");
+    fflush(stdin);
+    gets(cliente.apellido);
+
+    return cliente;
+}
+
+stCliente modificarEmail(stCliente cliente)
+{
+    printf("\ningrese el nuevo Mail: ");
+    fflush(stdin);
+    gets(cliente.mail);
+
+    return cliente;
+}
+
+stCliente modificarMovil(stCliente cliente)
+{
+    printf("\ningrese el nuevo movil: ");
+    fflush(stdin);
+    scanf("%d",&cliente.movil);
+
+    return cliente;
+}
+
+
 
 void anularPedido (char archivo[])
 {
@@ -621,3 +680,91 @@ void modificarPedido (char archivo[])
     }
 
 }
+
+//Listar clientes
+
+//Ordenados por método de selección tomando en cuenta número de id del cliente.
+
+int BuscarPosMenor (stCliente cliente[],int pos,int validos){
+
+    int MiMenor=cliente[pos].idCliente;
+    int posMenor = pos;
+    int i = pos+1;
+
+    while(i<validos){
+        if(cliente[i].idCliente<MiMenor){
+            MiMenor=cliente[i].idCliente;
+            posMenor=1;
+        }
+        i++;
+    }
+    return posMenor;
+}
+
+void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos){
+    int i=0;
+    int pmenor;
+    stCliente aux;
+
+    while(i<validos){
+        pmenor=BuscarPosMenor(clientes,i,validos);
+        aux=clientes[pmenor];
+        clientes [pmenor]=clientes[i];
+        clientes[i]=aux;
+        i++;
+    }
+}
+
+//Pasar archivo a arreglo
+int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension){
+    FILE * buf=fopen(nombreArch,"rb");
+    stCliente aux;
+
+    int i =0;
+
+    if(buf){
+        while((fread(&aux,sizeof(stCliente),1,buf)>0)&& i<dimension){
+
+                clientes[i]=aux;
+                i++;
+        }
+        fclose(buf);
+    }
+    return i;
+}
+
+//Pasar arreglo a archivo
+void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos){
+    FILE * archi=fopen(nombreArch,"ab");
+    int i=0;
+
+    if(archi!=NULL){
+        i=fwrite(clientes,sizeof(stCliente),1,archi);
+
+        fclose(archi);
+
+    }
+}
+
+//Ordenados por método de inserción tomando en cuenta nombre Y apellido (ambos al mismo tiempo)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
