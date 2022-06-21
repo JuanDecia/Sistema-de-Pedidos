@@ -54,11 +54,7 @@ void cargaDeDomicilio(stCliente cliente);
 void cargaDeClientes(stCliente cliente);
 void bajaDeClientes(char arregloChar[]);
 void modificarCliente (char archivo[]);
-stCliente modificarApellido(stCliente cliente);
-stCliente modificarNombre(stCliente cliente);
-stCliente modificarMovil(stCliente cliente);
-stDomicilio modificardomicilio(stDomicilio domicilio);
-stCliente modificarEmail(stCliente cliente);
+void modificarDatosCliente (char archivo[],int opcion);
 
 
 
@@ -71,9 +67,7 @@ void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos);
 ///Funciones pedidos
 void anularPedido (char archivo[]);
 void modificarPedido (char archivo[]);
-stPedido modificarCosto(stPedido pedido);
-stPedido modficarDescripcion (stPedido pedido);
-stFecha modificarFecha (stFecha fecha);
+void modificacionDatosPedido (char archivo[],int opcion);
 
 // Funciones listado y estadistica
 
@@ -409,51 +403,7 @@ void modificarCliente (char archivo[])
 
                         scanf("%i", &opcion);
 
-                        switch(opcion)
-                        {
-
-                        case 1:
-
-                            cliente=modificarApellido(cliente);
-                            fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
-                            fwrite(&cliente, sizeof(stCliente), 1, buff);
-
-                        break;
-
-                        case 2:
-
-                            cliente=modificarNombre(cliente);
-                            fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
-                            fwrite(&cliente, sizeof(stCliente), 1, buff);
-
-                        break;
-
-                        case 3:
-
-                            cliente=modificarEmail(cliente);
-                            fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
-                            fwrite(&cliente, sizeof(stCliente), 1, buff);
-
-                        break;
-
-                        case 4:
-
-                            cliente=modificarMovil(cliente);
-                            fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
-                            fwrite(&cliente, sizeof(stCliente), 1, buff);
-
-                        break;
-
-                        case 5:
-
-                            domicilio=modificardomicilio(domicilio);
-                            fseek(buff, sizeof(stDomicilio) * -1, SEEK_CUR);
-                            fwrite(&cliente, sizeof(stDomicilio), 1, buff);
-
-
-                        break;
-
-                        }
+                        modificarDatosCliente(archivo,opcion);
 
                         rewind(buff);
 
@@ -481,57 +431,73 @@ void modificarCliente (char archivo[])
 
 }
 
-//modularizacion de modificacion de clientes
+//modificacion de datos del cliente
 
-stCliente modificarNombre(stCliente cliente)
-{
-    printf("\nIngrese el nuevo nombre: ");
-    fflush(stdin);
-    gets(cliente.nombre);
+void modificarDatosCliente (char archivo[],int opcion){
+    FILE* buff = fopen(archivo,"r+b");
+    stCliente cliente;
+    stDomicilio domicilio;
 
-    return cliente;
+    if(archivo!=NULL){
+        switch(opcion)
+                        {
+
+                        case 1:
+
+                            printf("\ningrese el nuevo Apellido: ");
+                            gets(cliente.apellido);
+
+                            fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
+                            fwrite(&cliente, sizeof(stCliente), 1, buff);
+
+                        break;
+
+                        case 2:
+
+                            printf("\nIngrese el nuevo nombre: ");
+                            gets(cliente.nombre);
+
+                            fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
+                            fwrite(&cliente, sizeof(stCliente), 1, buff);
+
+                        break;
+
+                        case 3:
+
+                            printf("\ningrese el nuevo Mail: ");
+                            gets(cliente.mail);
+
+                            fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
+                            fwrite(&cliente, sizeof(stCliente), 1, buff);
+
+                        break;
+
+                        case 4:
+
+                            printf("\ningrese el nuevo movil: ");
+                            scanf("%d",&cliente.movil);
+
+                            fseek(buff, sizeof(stCliente) * -1, SEEK_CUR);
+                            fwrite(&cliente, sizeof(stCliente), 1, buff);
+
+                        break;
+
+                        case 5:
+
+                            printf("\ningrese el nuevo domicilio: ");
+                            gets(domicilio.nombreCalle);
+
+                            printf("\nIngrese la altura: ");
+                            scanf("%d",&domicilio.alturaCalle);
+
+                            fseek(buff, sizeof(stDomicilio) * -1, SEEK_CUR);
+                            fwrite(&cliente, sizeof(stDomicilio), 1, buff);
+
+
+                        break;
+        }
+    }
 }
-
-stDomicilio modificardomicilio(stDomicilio domicilio)
-{
-    printf("\ningrese el nuevo domicilio: ");
-    fflush(stdin);
-    gets(domicilio.nombreCalle);
-
-    printf("\nIngrese la altura: ");
-    fflush(stdin);
-    scanf("%d",&domicilio.alturaCalle);
-
-    return domicilio;
-}
-
-stCliente modificarApellido(stCliente cliente)
-{
-    printf("\ningrese el nuevo Apellido: ");
-    fflush(stdin);
-    gets(cliente.apellido);
-
-    return cliente;
-}
-
-stCliente modificarEmail(stCliente cliente)
-{
-    printf("\ningrese el nuevo Mail: ");
-    fflush(stdin);
-    gets(cliente.mail);
-
-    return cliente;
-}
-
-stCliente modificarMovil(stCliente cliente)
-{
-    printf("\ningrese el nuevo movil: ");
-    fflush(stdin);
-    scanf("%d",&cliente.movil);
-
-    return cliente;
-}
-
 
 
 void anularPedido (char archivo[])
@@ -609,45 +575,7 @@ void modificarPedido (char archivo[])
 
                         scanf("%i", &opcion);
 
-                        switch(opcion)
-                        {
-
-                        case 1:
-
-                            pedido=modificarCosto(pedido);
-                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
-                            fwrite(&pedido.costoPedido, sizeof(stPedido), 1, buff);
-
-                        break;
-
-                        case 2:
-
-                            pedido=modficarDescripcion(pedido);
-                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
-                            fwrite(&pedido.descripcionPedido, sizeof(stPedido), 1, buff);
-
-                        break;
-
-                        case 3:
-
-                            fecha=modificarFecha(fecha);
-
-                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
-                            fwrite(&pedido.fecha, sizeof(stPedido), 1, buff);
-
-                        break;
-
-                        case 4:
-
-                            printf("\n:Desea anular el pedido?(S/N):  \n");
-                            fflush(stdin);
-                            scanf("%c", &anular);
-
-                            if(anular == 's')
-                            {
-                                anularPedido(archivo);
-                            }
-                        }
+                        modificacionDatosPedido(archivo,opcion);
 
                         rewind(buff);
 
@@ -674,33 +602,67 @@ void modificarPedido (char archivo[])
 
 }
 
-//modularizacion de la modificacion de pedidos
-stPedido modificarCosto(stPedido pedido){
-    printf("\nIngrese el nuevo costo: \n");
-    fflush(stdin);
-    scanf("%i", &pedido.costoPedido);
-}
+//modificar datos del pedido
+void modificacionDatosPedido (char archivo[],int opcion){
 
-stPedido modficarDescripcion (stPedido pedido){
-    printf("\nIngrese nueva descripcion: \n");
-    fflush(stdin);
-    gets(pedido.descripcionPedido);
-}
+    FILE * buff=fopen(archivo, "r+b");
 
-stFecha modificarFecha (stFecha fecha){
-    printf("\nIngrese nueva fecha: \n");
+    stPedido pedido;
+    stFecha fecha;
+    char anular = ' ';
 
-    printf("\nIngrese dia: ");
-    fflush(stdin);
-    scanf("%i", &fecha.dia);
 
-    printf("\nIngrese mes: ");
-    fflush(stdin);
-    scanf("%i", &fecha.mes);
+    if(buff!=NULL){
+        switch(opcion){
 
-    printf("\nIngrese anio: ");
-    fflush(stdin);
-    scanf("%i", &fecha.anio);
+                        case 1:
+
+                            printf("\nIngrese el nuevo costo: \n");
+                            scanf("%i", &pedido.costoPedido);
+                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
+                            fwrite(&pedido.costoPedido, sizeof(stPedido), 1, buff);
+
+                        break;
+
+                        case 2:
+
+                            printf("\nIngrese nueva descripcion: \n");
+                            gets(pedido.descripcionPedido);
+                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
+                            fwrite(&pedido.descripcionPedido, sizeof(stPedido), 1, buff);
+
+                        break;
+
+                        case 3:
+
+                            printf("\nIngrese nueva fecha: \n");
+
+                            printf("\nIngrese dia: ");
+                            scanf("%i", &fecha.dia);
+
+                            printf("\nIngrese mes: ");
+                            scanf("%i", &fecha.mes);
+
+                            printf("\nIngrese anio: ");
+                            scanf("%i", &fecha.anio);
+
+                            fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
+                            fwrite(&pedido.fecha, sizeof(stPedido), 1, buff);
+
+                        break;
+
+                        case 4:
+
+                            printf("\n:Desea anular el pedido?(S/N):  \n");
+                            fflush(stdin);
+                            scanf("%c", &anular);
+
+                            if(anular == 's')
+                            {
+                                anularPedido(archivo);
+                            }
+        }
+    }
 }
 
 
