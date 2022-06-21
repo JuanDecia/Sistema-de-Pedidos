@@ -71,6 +71,9 @@ void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos);
 ///Funciones pedidos
 void anularPedido (char archivo[]);
 void modificarPedido (char archivo[]);
+stPedido modificarCosto(stPedido pedido);
+stPedido modficarDescripcion (stPedido pedido);
+stFecha modificarFecha (stFecha fecha);
 
 // Funciones listado y estadistica
 
@@ -267,6 +270,7 @@ void cargaDeClientes(stCliente  cliente){   /// Carga de clientes, se llama cuan
         scanf("%i", &cliente.movil);
 
 }
+
 
 
 void altaDeClientes(char arregloChar[]){
@@ -610,8 +614,7 @@ void modificarPedido (char archivo[])
 
                         case 1:
 
-                            printf("\nIngrese el nuevo costo: \n");
-                            scanf("%i", &pedido.costoPedido);
+                            pedido=modificarCosto(pedido);
                             fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
                             fwrite(&pedido.costoPedido, sizeof(stPedido), 1, buff);
 
@@ -619,8 +622,7 @@ void modificarPedido (char archivo[])
 
                         case 2:
 
-                            printf("\nIngrese nueva descripcion: \n");
-                            gets(pedido.descripcionPedido);
+                            pedido=modficarDescripcion(pedido);
                             fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
                             fwrite(&pedido.descripcionPedido, sizeof(stPedido), 1, buff);
 
@@ -628,16 +630,7 @@ void modificarPedido (char archivo[])
 
                         case 3:
 
-                            printf("\nIngrese nueva fecha: \n");
-
-                            printf("\nIngrese dia: ");
-                            scanf("%i", &fecha.dia);
-
-                            printf("\nIngrese mes: ");
-                            scanf("%i", &fecha.mes);
-
-                            printf("\nIngrese anio: ");
-                            scanf("%i", &fecha.anio);
+                            fecha=modificarFecha(fecha);
 
                             fseek(buff, sizeof(stPedido) * -1, SEEK_CUR);
                             fwrite(&pedido.fecha, sizeof(stPedido), 1, buff);
@@ -680,6 +673,36 @@ void modificarPedido (char archivo[])
     }
 
 }
+
+//modularizacion de la modificacion de pedidos
+stPedido modificarCosto(stPedido pedido){
+    printf("\nIngrese el nuevo costo: \n");
+    fflush(stdin);
+    scanf("%i", &pedido.costoPedido);
+}
+
+stPedido modficarDescripcion (stPedido pedido){
+    printf("\nIngrese nueva descripcion: \n");
+    fflush(stdin);
+    gets(pedido.descripcionPedido);
+}
+
+stFecha modificarFecha (stFecha fecha){
+    printf("\nIngrese nueva fecha: \n");
+
+    printf("\nIngrese dia: ");
+    fflush(stdin);
+    scanf("%i", &fecha.dia);
+
+    printf("\nIngrese mes: ");
+    fflush(stdin);
+    scanf("%i", &fecha.mes);
+
+    printf("\nIngrese anio: ");
+    fflush(stdin);
+    scanf("%i", &fecha.anio);
+}
+
 
 //Listar clientes
 
@@ -747,24 +770,3 @@ void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos){
 }
 
 //Ordenados por método de inserción tomando en cuenta nombre Y apellido (ambos al mismo tiempo)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
