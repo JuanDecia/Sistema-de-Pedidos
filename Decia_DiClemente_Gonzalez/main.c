@@ -63,6 +63,8 @@ int BuscarPosMenor (stCliente cliente[],int pos,int validos);
 void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos);
 int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension);
 void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos);
+void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos);
+void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]);
 
 ///Funciones pedidos
 void anularPedido (char archivo[]);
@@ -732,3 +734,91 @@ void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos){
 }
 
 //Ordenados por método de inserción tomando en cuenta nombre Y apellido (ambos al mismo tiempo)
+
+void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos){
+
+    FILE * archi=fopen(arregloChar, "r+b");
+    stCliente cliente;
+    int j=1;
+    int i=0-1;
+    int flag=0;
+
+    char auxCliente[30];
+    char aux2Cliente[30];
+    char auxNombre[30];
+    char auxNombre2[30];
+    char auxApellido[30];
+    char auxApellido2[30];
+    char auxAuxNombre[30];
+    char auxAuxApellido[30];
+
+
+
+    if(archi!=NULL){
+
+        while((fread(&cliente, sizeof(stCliente), 1, archi))>0 && j<validos+1){
+
+
+            do{
+
+            flag=0;
+
+            strcpy(auxNombre, cliente.nombre);
+            strcpy(auxApellido, cliente.apellido);
+
+            unirApellidoNombre(cliente, auxCliente);
+
+            fseek(archi, sizeof(stCliente) * i+1, SEEK_SET);
+            fread(&cliente, sizeof(stCliente), 1, archi);
+
+            strcpy(auxNombre2, cliente.nombre);
+            strcpy(auxApellido2, cliente.apellido);
+
+            unirApellidoNombre(cliente, aux2Cliente);
+
+            if(strcmpi(auxCliente, aux2Cliente)==(0-1)){
+
+                strcpy(auxAuxNombre, auxNombre2);
+                strcpy(auxAuxApellido, auxApellido2);
+
+                strcpy(cliente.nombre, auxNombre);
+                strcpy(cliente.apellido, auxApellido);
+
+                i--;
+
+                fseek(archi, sizeof(stCliente) * i, SEEK_SET);
+
+                strcpy(cliente.nombre, auxNombre2);
+                strcpy(cliente.apellido, auxApellido2);
+                flag=1;
+
+            }else{
+
+                fseek(archi, sizeof(stCliente) * j, SEEK_SET);
+
+            }
+
+            }while(flag!=0);
+
+            i=j-1;
+            j++;
+
+        }
+
+    fclose(archi);
+
+    }else{
+
+        printf("No se pudo abrir el archivo\n");
+
+    }
+
+
+}
+
+void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]){
+
+    strcat(auxCliente, cliente.nombre);
+    strcat(auxCliente, cliente.apellido);
+
+}
