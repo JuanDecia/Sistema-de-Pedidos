@@ -58,7 +58,7 @@ void modificarDatosCliente (char archivo[],int opcion);
 
 
 
-// Funciones Listado de clientes
+/// Funciones Listado de clientes
 int BuscarPosMenor (stCliente cliente[],int pos,int validos);
 void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos);
 int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension);
@@ -77,7 +77,7 @@ void modificacionDatosPedido (char archivo[],int opcion);
 int main()
 {
 
-    /// Variables varias
+    // Variable Archivo
     char arregloChar[30]={"ArchivoNumeros"};
 
     // Variables Menu
@@ -85,10 +85,10 @@ int main()
     char continuar = 's';
 
     // Variables switch para clientes
-
     int opcionCliente1;
 
     //Variables switch para pedidos
+    int opcionPedido;
 
     // Menu
     do {
@@ -162,7 +162,24 @@ int main()
 
     case 2:
 
-        printf("pedido");
+        do {
+            printf("\nIngrese que apartado quiere ver: \n1. Alta de Pedido\n");
+            printf("2. Baja de Pedido\n");
+            printf("3. Modificacion de Pedido\n");
+            printf("4. Listar Pedidos\n");
+
+            scanf("%i", &opcionPedido);
+
+            switch(opcionPedido)
+            {
+
+            case 1:
+
+                altaPedido(arregloChar);
+
+            break;
+            }
+        } while (continuar == 's');
 
     break;
 
@@ -266,8 +283,6 @@ void cargaDeClientes(stCliente  cliente){   /// Carga de clientes, se llama cuan
         scanf("%i", &cliente.movil);
 
 }
-
-
 
 void altaDeClientes(char arregloChar[]){
 
@@ -501,6 +516,94 @@ void modificarDatosCliente (char archivo[],int opcion){
     }
 }
 
+/// ================================= FUNCIONES PEDIDOS ===================================
+
+// Carga de Fecha para pedido
+void cargaFecha (stFecha fecha)
+{
+    printf("\nSe cargara la fecha de registro del pedido: ");
+
+    printf("\nIngrese Dia: ");
+    scanf("%i", &fecha.dia);
+
+    printf("\nIngrese Mes: ");
+    scanf("%i", &fecha.mes);
+
+    printf("\nIngrese Anio: ");
+    scanf("%i", &fecha.anio);
+}
+
+// Carga de Pedidos
+void cargaPedido(stPedido pedido){   /// Carga de clientes, se llama cuantas veces sea necesario en altaDeClientes
+
+    stFecha fecha;
+
+        printf("\nIngrese la descripcion del pedido: ");
+        fflush(stdin);
+        gets(pedido.descripcionPedido);
+
+        cargaFecha(fecha);
+
+        printf("\nIngrese el costo del pedido: ");
+        scanf("%i", &pedido.costoPedido);
+}
+
+void altaPedido(char archivo[]){
+
+    FILE * buff = fopen(archivo, "w+b");
+
+    char continuar = 's';
+
+    stPedido pedido;
+    stPedido pedidoAuxiliar;
+
+    printf("\nDe alta al pedido entrante, realice los siguientes pasos: \n");
+
+    if(buff!=NULL){
+
+        do{
+
+        fseek(buff, sizeof(stPedido) * -1, SEEK_END);
+
+        if(fread(&pedidoAuxiliar, sizeof(stPedido), 1, buff) == 0){
+
+            pedido.idPedido = 1;
+
+        }else {
+
+        pedido.idPedido = pedidoAuxiliar.idPedido + 1;
+
+        }
+
+        cargaPedido(pedido);
+
+        fwrite(&pedido, sizeof(stPedido), 1, buff);
+
+        printf("Desea seguir ingresando pedidos (S/N)? \n");
+        fflush(stdin);
+        scanf("%c", &continuar);
+
+        }while(continuar=='s');
+
+        fclose(buff);
+
+    }else{
+
+        printf("El Archivo no se pudo abrir\n");
+
+    }
+
+
+    printf("Desea ver todo lo que ha ingresado? (S/N) \n");
+    fflush(stdin);
+    scanf("%c", &continuar);
+
+    if(continuar=='s'){
+
+        verArchivo(archivo);
+
+    }
+}
 
 void anularPedido (char archivo[])
 {
