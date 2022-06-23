@@ -63,20 +63,26 @@ void ordenamientoPorSeleccionClientes(int validos);
 int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension);
 void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos);
 void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos);
-void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]);
+void unirApellidoNombre(stCliente cliente, char auxCliente[]);
 
 ///Funciones pedidos
 void anularPedido (char archivo[]);
 void modificarPedido (char archivo[], int contadorPedido[]);
 void modificacionDatosPedido (char archivo[],int opcion);
 void mostrarPedidos(stPedido pedido);
+void altaPedido(char archivo[]);
+void cargaPedido(stPedido pedido);
+void mostrarTopTenClientes (int top10clientes[]);
+
+
 
 
 // Funciones listado y estadistica
-void listarTopTenClientes (char nombreArch[],int contadorPedidos[], int top10clientes[]);
+void listarTopTenClientes (char nombreArch[],int contadorPedidos[]);
 void buscarPeorCliente (char archivo[],int contadorPedidos[]);
-void busquedaMasViejo(char archivo[],stPedido pedidos);
+void busquedaMasViejo(char archivo[]);
 void mostrarPedidosDeUnCliente (char nombreArchivo[],int idClienteAbuscar, int contadorPedidos[]);
+void listarPedidos(char arregloChar[], int contadorPedidos[]);
 
 int main()
 {
@@ -87,7 +93,7 @@ int main()
     // Variables Menu
     int opcion;
     int validos;
-    char seleccion;
+    char seleccion=' ';
     char continuar = 's';
 
     // Variables switch para clientes
@@ -155,11 +161,11 @@ int main()
 
             if(seleccion=='s'){
 
-                ordenamientoPorSeleccionClientes(int validos);
+                ordenamientoPorSeleccionClientes(validos);
 
             }else{
 
-                ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos);
+                ordenamientoPorInsercionNombreApellido(arregloChar, validos);
 
             }
 
@@ -666,8 +672,8 @@ void altaPedido(char archivo[]){
     }
 }
 
-void anularPedido (char archivo[])
-{
+void anularPedido (char archivo[]){
+
     FILE * buff = buff = fopen(archivo, "r+b");
 
     stPedido pedido;
@@ -727,7 +733,6 @@ void modificarPedido (char archivo[], int contadorPedidos[])
     int i;
 
     stPedido pedido;
-    stFecha fecha;
 
     char continuar = ' ';
     int auxID;
@@ -735,7 +740,6 @@ void modificarPedido (char archivo[], int contadorPedidos[])
     // Variables para el switch
     int opcion;
     char continuar2 = ' ';
-    char anular = ' ';
 
     if (archivo != NULL)
     {
@@ -878,7 +882,7 @@ int BuscarPosMenor (stCliente cliente[],int pos,int validos){
 void ordenamientoPorSeleccionClientes(int validos){
     int i=0;
     int pmenor;
-    stCliente clientes[];
+    stCliente clientes[30];
     stCliente aux;
 
     while(i<validos){
@@ -922,6 +926,13 @@ void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos){
 }
 
 //Ordenados por método de inserción tomando en cuenta nombre Y apellido (ambos al mismo tiempo)
+
+void unirApellidoNombre(stCliente cliente, char auxCliente[]){
+
+    strcpy(auxCliente, cliente.nombre);
+    strcat(auxCliente, cliente.apellido);
+
+}
 
 void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos){
 
@@ -1004,18 +1015,13 @@ void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos){
 
 }
 
-void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]){
 
-    strcat(auxCliente, cliente.nombre);
-    strcat(auxCliente, cliente.apellido);
-
-}
 
 ///////////////////listado y estadisticas////////////////////////
 
 //Listar top ten de mejores clientes (por cantidad de pedidos)
 
-void listarPedidos(char arregloChar[], int contadorPedidos[], ){
+void listarPedidos(char arregloChar[], int contadorPedidos[]){
 
     int opcion;
     char seguir;
@@ -1029,12 +1035,16 @@ void listarPedidos(char arregloChar[], int contadorPedidos[], ){
 
     do{
 
+        printf("Ingrese el apartado: ");
+        scanf("%i", &opcion);
+        printf("\n");
+
         switch(opcion){
 
         /// Listar pedidos fecha
         case 1:
 
-            busquedaMasViejo(char arregloChar[])
+            busquedaMasViejo(arregloChar);
             pause();
 
             break;
@@ -1045,7 +1055,7 @@ void listarPedidos(char arregloChar[], int contadorPedidos[], ){
             printf("Que cliente quiere buscar? Ingrese el ID\n");
             scanf("%i", &idClienteAbuscar);
 
-            mostrarPedidosDeUnCliente (char nombreArchivo[],int idClienteAbuscar, int contadorPedidos[]);
+            mostrarPedidosDeUnCliente(arregloChar, idClienteAbuscar, contadorPedidos);
             pause();
 
             break;
@@ -1053,7 +1063,7 @@ void listarPedidos(char arregloChar[], int contadorPedidos[], ){
         /// Listar top 10 clientes
         case 3:
 
-            listarTopTenClientes (char arregloChar[],int contadorPedidos[]);
+            listarTopTenClientes(arregloChar, contadorPedidos);
             pause();
 
             break;
@@ -1061,12 +1071,16 @@ void listarPedidos(char arregloChar[], int contadorPedidos[], ){
         /// Listar peor cliente
         case 4:
 
-            buscarPeorCliente (char arregloChar[],int contadorPedidos[]);
+            buscarPeorCliente (arregloChar, contadorPedidos);
             pause();
 
             break;
 
         }
+
+        printf("Quiere seguir? S/N");
+        fflush(stdin);
+        scanf("%c", &seguir);
 
     }while(seguir=='s');
 
@@ -1156,7 +1170,7 @@ void busquedaMasViejo(char archivo[]){
 
     FILE * archi=fopen(archivo,"r+b");
 
-    stPedido pedidos
+    stPedido pedidos;
     stFecha aux1;
     stFecha aux2;
 
@@ -1218,7 +1232,7 @@ void busquedaMasViejo(char archivo[]){
 
 //muestro pedido de un cliente elegido por el usuario
 
-void mostrarPedidosDeUnCliente (char nombreArchivo[],int idClienteAbuscar, int contadorPedidos[]){
+void mostrarPedidosDeUnCliente (char nombreArchivo[], int idClienteAbuscar, int contadorPedidos[]){
     FILE * archi=fopen(nombreArchivo,"rb");
     stCliente cliente;
     stPedido pedido;
