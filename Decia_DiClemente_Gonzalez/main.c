@@ -70,6 +70,8 @@ void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]);
 void anularPedido (char archivo[]);
 void modificarPedido (char archivo[]);
 void modificacionDatosPedido (char archivo[],int opcion);
+void mostrarFecha (stFecha fecha);
+void mostrarPedidos(stPedido pedido);
 
 // Funciones listado y estadistica
 
@@ -657,6 +659,45 @@ void anularPedido (char archivo[])
     }
 
 }
+//mostrar pedidos
+void mostrarFecha (stFecha fecha){
+    printf("\nDia: %d",fecha.dia);
+    printf("\nMes: %d",fecha.mes);
+    printf("\nAnio: %d",fecha.anio);
+}
+
+void mostrarPedidos(stPedido pedido){
+
+    stFecha fecha;
+
+    puts("\n---------------------------\n");
+    printf("\nID cliente: %d",pedido.idCliente);
+    printf("\nID pedido: %d",pedido.idPedido);
+    printf("\nDescripcion del pedido: %s",pedido.descripcionPedido);
+    printf("\nCosto del pedido: %d",pedido.costoPedido);
+    printf("\nPedido anulado: %d",pedido.pedidoAnulado);
+    printf("\nFecha del pedido: ");
+
+    mostrarFecha(fecha);
+}
+
+//buscar cliente y mostrar pedidos realizados
+//SIN TERMINAR
+
+/*void mostrarPedidosDeUnCliente (char nombreArchivo[],int idClienteAbuscar){
+    FILE * archi=fopen(nombreArchivo,"rb");
+    stCliente cliente;
+    stPedido pedido;
+
+    if(archi!=NULL){
+        while(fread(&cliente,sizeof(stCliente),1,archi)>0){
+            if(cliente.idCliente==idClienteAbuscar){
+                mostrarPedidos(pedido);
+            }
+        }
+        fclose(archi);
+    }
+}*/
 
 // Modificar Pedido
 
@@ -791,7 +832,7 @@ void modificacionDatosPedido (char archivo[],int opcion){
 }
 
 
-//Listar clientes
+/*=====================Listar clientes===============*/
 
 //Ordenados por método de selección tomando en cuenta número de id del cliente.
 
@@ -945,3 +986,6 @@ void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]){
     strcat(auxCliente, cliente.apellido);
 
 }
+
+/*Listar Pedidos por Cliente (busco un cliente en particular y muestro todos
+los pedidos que realizó)*/
