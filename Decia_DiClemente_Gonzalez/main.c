@@ -59,7 +59,7 @@ void modificarDatosCliente (char archivo[],int opcion);
 
 /// Funciones Listado de clientes
 int BuscarPosMenor (stCliente cliente[],int pos,int validos);
-void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos);
+void ordenamientoPorSeleccionClientes(int validos);
 int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension);
 void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos);
 void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos);
@@ -86,11 +86,13 @@ int main()
 
     // Variables Menu
     int opcion;
+    int validos;
+    char seleccion;
     char continuar = 's';
 
     // Variables switch para clientes
     int opcionCliente1;
-    int topTenClientes[10];
+
 
     //Variables switch para pedidos
     int opcionPedido;
@@ -126,30 +128,49 @@ int main()
         /// Alta de clientes
         case 1:
 
-
             altaDeClientes(arregloChar);
-
+            pause();
 
             break;
         /// Baja de clientes
         case 2:
 
-
             bajaDeClientes(arregloChar);
-
+            pause();
 
             break;
-
+        /// Modificar Clientes
         case 3:
 
             modificarCliente(arregloChar);
+            pause();
 
             break;
+        /// Listar clientes
+        case 4:
 
+            printf("Quiere ordenarlos por seleccion o insercion? (I=Insercion, S=Seleccion)\n");
+            fflush(stdin);
+            scanf("%c", &seleccion);
+
+            if(seleccion=='s'){
+
+                ordenamientoPorSeleccionClientes(int validos);
+
+            }else{
+
+                ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos);
+
+            }
+
+            pause();
+
+            break;
 
         default:
 
             printf("Numero ingresado incorrecto\n");
+            pause();
 
             break;
 
@@ -161,11 +182,12 @@ int main()
         scanf("%c", &continuar);
 
 
+
         }while (continuar == 's');
 
 
 
-    break;
+        break;
 
     case 2:
 
@@ -184,38 +206,45 @@ int main()
             case 1:
 
                 altaPedido(arregloChar);
+                pause();
 
-            break;
+                break;
 
             //baja de pedido
             case 2:
 
                 anularPedido(arregloChar);
+                pause();
 
-            break;
+                break;
 
             //modificar pedido
             case 3:
 
                 modificarPedido(arregloChar, contadorDePedidos);
+                pause();
 
-
-            break;
+                break;
 
             //listar pedido
+            case 4:
 
+                listarPedidos(arregloChar, contadorDePedidos);
+                pause();
+
+                break;
 
 
             }
         } while (continuar == 's');
 
-    break;
+        break;
 
     default:
 
         printf("\nOpcion incorrecta. \n");
 
-    break;
+        break;
 
 
     }
@@ -226,6 +255,7 @@ int main()
 
     } while (continuar == 's');
 
+    pause();
 
     return 0;
 }
@@ -415,7 +445,7 @@ void modificarCliente (char archivo[])
     buff = fopen(archivo, "r+b");
 
     stCliente cliente;
-    stDomicilio domicilio;
+
 
     char continuar = ' ';
     int auxID;
@@ -479,9 +509,11 @@ void modificarCliente (char archivo[])
 //modificacion de datos del cliente
 
 void modificarDatosCliente (char archivo[],int opcion){
+
     FILE* buff = fopen(archivo,"r+b");
     stCliente cliente;
-    stDomicilio domicilio;
+
+
 
     if(archivo!=NULL){
         switch(opcion)
@@ -530,10 +562,10 @@ void modificarDatosCliente (char archivo[],int opcion){
                         case 5:
 
                             printf("\ningrese el nuevo domicilio: ");
-                            gets(domicilio.nombreCalle);
+                            gets(cliente.domicilio.nombreCalle);
 
                             printf("\nIngrese la altura: ");
-                            scanf("%d",&domicilio.alturaCalle);
+                            scanf("%d",&cliente.domicilio.alturaCalle);
 
                             fseek(buff, sizeof(stDomicilio) * -1, SEEK_CUR);
                             fwrite(&cliente, sizeof(stDomicilio), 1, buff);
@@ -843,9 +875,10 @@ int BuscarPosMenor (stCliente cliente[],int pos,int validos){
     return posMenor;
 }
 
-void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos){
+void ordenamientoPorSeleccionClientes(int validos){
     int i=0;
     int pmenor;
+    stCliente clientes[];
     stCliente aux;
 
     while(i<validos){
@@ -858,7 +891,7 @@ void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos){
 }
 
 //Pasar archivo a arreglo
-int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension){
+int pasarArchivoToArreglo(char nombreArch[],stCliente clientes[],int dimension){
     FILE * buf=fopen(nombreArch,"rb");
     stCliente aux;
 
@@ -982,10 +1015,72 @@ void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]){
 
 //Listar top ten de mejores clientes (por cantidad de pedidos)
 
-void listarTopTenClientes (char nombreArch[],int contadorPedidos[], int top10clientes[]){
+void listarPedidos(char arregloChar[], int contadorPedidos[], ){
+
+    int opcion;
+    char seguir;
+    int idClienteAbuscar;
+
+    printf("Que apartado del listado de pedidos quiere acceder?: \n");
+    printf("1. Listar todos los pedidos por orden de fecha (Viejo->Nuevo)\n");
+    printf("2. Listar pedidos por cliente\n");
+    printf("3. Listar TOP 10 mejores clientes\n");
+    printf("4. Listar el PEOR cliente\n");
+
+    do{
+
+        switch(opcion){
+
+        /// Listar pedidos fecha
+        case 1:
+
+            busquedaMasViejo(char arregloChar[])
+            pause();
+
+            break;
+
+        /// Listar pedidos por cliente
+        case 2:
+
+            printf("Que cliente quiere buscar? Ingrese el ID\n");
+            scanf("%i", &idClienteAbuscar);
+
+            mostrarPedidosDeUnCliente (char nombreArchivo[],int idClienteAbuscar, int contadorPedidos[]);
+            pause();
+
+            break;
+
+        /// Listar top 10 clientes
+        case 3:
+
+            listarTopTenClientes (char arregloChar[],int contadorPedidos[]);
+            pause();
+
+            break;
+
+        /// Listar peor cliente
+        case 4:
+
+            buscarPeorCliente (char arregloChar[],int contadorPedidos[]);
+            pause();
+
+            break;
+
+        }
+
+    }while(seguir=='s');
+
+
+}
+
+
+
+void listarTopTenClientes (char nombreArch[],int contadorPedidos[]){
 
     FILE * archi=fopen(nombreArch,"rb");
 
+    int top10clientes[10];
+    char opcion;
     int IDmasGrande=0;
     stPedido pedido;
     int MasGrande=0;
@@ -1006,15 +1101,30 @@ void listarTopTenClientes (char nombreArch[],int contadorPedidos[], int top10cli
          i++;
         }
 
+        printf("Quiere ver los mejores clientes? S/N\n");
+        fflush(stdin);
+        scanf("%c", &opcion);
+
+        if(opcion=='s'){
+
+            mostrarTopTenClientes(top10clientes);
+
+        }
+
         fclose(archi);
     }
 }
 
 void mostrarTopTenClientes (int top10clientes[]){
+
     printf("\nMejores clientes: ");
+
     for(int i=0;i<10;i++){
-        printf("\n %i",top10clientes[i]);
+
+        printf("\n Cliente: %i", top10clientes[i]);
+
     }
+
 }
 
 //busqueda del peor cliente
@@ -1042,10 +1152,11 @@ void buscarPeorCliente (char archivo[],int contadorPedidos[]){
 
 //busqueda pedido mas viejo
 
-void busquedaMasViejo(char archivo[],stPedido pedidos){
+void busquedaMasViejo(char archivo[]){
 
     FILE * archi=fopen(archivo,"r+b");
 
+    stPedido pedidos
     stFecha aux1;
     stFecha aux2;
 
