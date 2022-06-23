@@ -57,7 +57,6 @@ void modificarCliente (char archivo[]);
 void modificarDatosCliente (char archivo[],int opcion);
 
 
-
 /// Funciones Listado de clientes
 int BuscarPosMenor (stCliente cliente[],int pos,int validos);
 void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos);
@@ -68,13 +67,16 @@ void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]);
 
 ///Funciones pedidos
 void anularPedido (char archivo[]);
-void modificarPedido (char archivo[]);
+void modificarPedido (char archivo[], int contadorPedido[]);
 void modificacionDatosPedido (char archivo[],int opcion);
-void mostrarFecha (stFecha fecha);
 void mostrarPedidos(stPedido pedido);
 
-// Funciones listado y estadistica
 
+// Funciones listado y estadistica
+void listarTopTenClientes (char nombreArch[],int contadorPedidos[], int top10clientes[]);
+void buscarPeorCliente (char archivo[],int contadorPedidos[]);
+void busquedaMasViejo(char archivo[],stPedido pedidos);
+void mostrarPedidosDeUnCliente (char nombreArchivo[],int idClienteAbuscar, int contadorPedidos[]);
 
 int main()
 {
@@ -88,9 +90,12 @@ int main()
 
     // Variables switch para clientes
     int opcionCliente1;
+    int topTenClientes[10];
 
     //Variables switch para pedidos
     int opcionPedido;
+
+    int contadorDePedidos[100];
 
     // Menu
     do {
@@ -192,7 +197,8 @@ int main()
             //modificar pedido
             case 3:
 
-                modificarPedido(arregloChar);
+                modificarPedido(arregloChar, contadorDePedidos);
+
 
             break;
 
@@ -538,6 +544,7 @@ void modificarDatosCliente (char archivo[],int opcion){
     }
 }
 
+
 /// ================================= FUNCIONES PEDIDOS ===================================
 
 // Carga de Fecha para pedido
@@ -660,15 +667,8 @@ void anularPedido (char archivo[])
 
 }
 //mostrar pedidos
-void mostrarFecha (stFecha fecha){
-    printf("\nDia: %d",fecha.dia);
-    printf("\nMes: %d",fecha.mes);
-    printf("\nAnio: %d",fecha.anio);
-}
 
 void mostrarPedidos(stPedido pedido){
-
-    stFecha fecha;
 
     puts("\n---------------------------\n");
     printf("\nID cliente: %d",pedido.idCliente);
@@ -677,35 +677,22 @@ void mostrarPedidos(stPedido pedido){
     printf("\nCosto del pedido: %d",pedido.costoPedido);
     printf("\nPedido anulado: %d",pedido.pedidoAnulado);
     printf("\nFecha del pedido: ");
+    printf("\nDia: %d",pedido.fecha.dia);
+    printf("\nMes: %d",pedido.fecha.mes);
+    printf("\nAnio: %d",pedido.fecha.anio);
 
-    mostrarFecha(fecha);
 }
 
-//buscar cliente y mostrar pedidos realizados
-//SIN TERMINAR
-
-/*void mostrarPedidosDeUnCliente (char nombreArchivo[],int idClienteAbuscar){
-    FILE * archi=fopen(nombreArchivo,"rb");
-    stCliente cliente;
-    stPedido pedido;
-
-    if(archi!=NULL){
-        while(fread(&cliente,sizeof(stCliente),1,archi)>0){
-            if(cliente.idCliente==idClienteAbuscar){
-                mostrarPedidos(pedido);
-            }
-        }
-        fclose(archi);
-    }
-}*/
 
 // Modificar Pedido
 
-void modificarPedido (char archivo[])
+void modificarPedido (char archivo[], int contadorPedidos[])
 {
     FILE * buff;
 
     buff = fopen(archivo, "r+b");
+
+    int i;
 
     stPedido pedido;
     stFecha fecha;
@@ -725,6 +712,9 @@ void modificarPedido (char archivo[])
             printf("\nSeleccione el ID para buscar el pedido a modificar: ");
             fflush(stdin);
             scanf("%i", &auxID);
+
+            i=auxID-1;
+            contadorPedidos[i]=contadorPedidos[i]+1;
 
             while(fread (&pedido, sizeof(stPedido), 1, buff) > 0)
             {
@@ -752,6 +742,7 @@ void modificarPedido (char archivo[])
                     } while (continuar2 == 's');
 
                 }
+                i=0;
             }
 
             printf("\nDesea modificar otro pedido? (S/N): ");
@@ -987,5 +978,161 @@ void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]){
 
 }
 
-/*Listar Pedidos por Cliente (busco un cliente en particular y muestro todos
-los pedidos que realizó)*/
+///////////////////listado y estadisticas////////////////////////
+
+//Listar top ten de mejores clientes (por cantidad de pedidos)
+
+void listarTopTenClientes (char nombreArch[],int contadorPedidos[], int top10clientes[]){
+
+    FILE * archi=fopen(nombreArch,"rb");
+
+    int IDmasGrande=0;
+    stPedido pedido;
+    int MasGrande=0;
+    int i=0;
+    IDmasGrande=pedido.idCliente;
+
+    if(archi!=NULL){
+            while(i<10){
+
+        while(fread(&pedido,sizeof(stCliente),1,archi)>0){
+            if((contadorPedidos[pedido.idCliente]>IDmasGrande) && (contadorPedidos[pedido.idCliente]<contadorPedidos[MasGrande])){
+                IDmasGrande=pedido.idCliente;
+            }
+
+        }
+        top10clientes[i]=IDmasGrande;
+        MasGrande=IDmasGrande;
+         i++;
+        }
+
+        fclose(archi);
+    }
+}
+
+void mostrarTopTenClientes (int top10clientes[]){
+    printf("\nMejores clientes: ");
+    for(int i=0;i<10;i++){
+        printf("\n %i",top10clientes[i]);
+    }
+}
+
+//busqueda del peor cliente
+
+void buscarPeorCliente (char archivo[],int contadorPedidos[]){
+
+    FILE*archi=fopen(archivo,"rb");
+
+
+    stPedido pedido;
+    int IDdelPeor=contadorPedidos[0];
+    int i=0;
+
+    if(archi!=NULL){
+        while(fread(&pedido,sizeof(stCliente),1,archi)>0){
+            if((contadorPedidos[pedido.idCliente]<IDdelPeor)){
+                IDdelPeor=pedido.idCliente;
+            }
+
+        }
+        printf("\nEl ID del peor cliente es: %d",IDdelPeor);
+    }
+        fclose(archi);
+}
+
+//busqueda pedido mas viejo
+
+void busquedaMasViejo(char archivo[],stPedido pedidos){
+
+    FILE * archi=fopen(archivo,"r+b");
+
+    stFecha aux1;
+    stFecha aux2;
+
+
+    while(fread(&pedidos,sizeof(stPedido),1,archi)>0){
+
+        aux1.anio=pedidos.fecha.anio;
+        aux1.mes=pedidos.fecha.mes;
+        aux1.dia=pedidos.fecha.dia;
+
+    fread(&pedidos,sizeof(stPedido),1,archi);
+
+        aux2.anio=pedidos.fecha.anio;
+        aux2.mes=pedidos.fecha.mes;
+        aux2.dia=pedidos.fecha.dia;
+
+        if(aux1.anio==aux2.anio){
+
+            if(aux1.mes==aux2.mes){
+                if(aux1.dia>=aux1.dia){
+
+                }else{
+                    pedidos.fecha.dia=aux1.dia;
+                    fseek(archi,sizeof(stPedido)*(-2),SEEK_CUR);
+                    pedidos.fecha.dia=aux2.dia;
+                    fwrite(&pedidos,sizeof(stPedido),1,archi);
+
+                }
+            }else{
+                if(aux1.mes>aux2.mes){
+
+                }else{
+                    pedidos.fecha.mes=aux1.mes;
+                    fseek(archi,sizeof(stPedido)*(-2),SEEK_CUR);
+                    pedidos.fecha.mes=aux2.mes;
+                    fwrite(&pedidos,sizeof(stPedido),1,archi);
+                }
+
+            }
+        }else{
+            if(aux1.anio>aux2.anio){
+
+            }else{
+                pedidos.fecha.anio=aux1.anio;
+                fseek(archi,sizeof(stPedido)*(-2),SEEK_CUR);
+                pedidos.fecha.anio=aux2.anio;
+                fwrite(&pedidos,sizeof(stPedido),1,archi);
+            }
+
+        }
+
+    }
+
+    printf("\nLos pedidos estan ordenados de mas viejo a mas joven: ");
+    mostrarPedidos(pedidos);
+    fclose(archi);
+
+}
+
+//muestro pedido de un cliente elegido por el usuario
+
+void mostrarPedidosDeUnCliente (char nombreArchivo[],int idClienteAbuscar, int contadorPedidos[]){
+    FILE * archi=fopen(nombreArchivo,"rb");
+    stCliente cliente;
+    stPedido pedido;
+    int i=0;
+
+    if(archi!=NULL){
+        while(fread(&cliente,sizeof(stCliente),1,archi)>0){
+            if(pedido.idCliente==idClienteAbuscar){
+
+                mostrarPedidos(pedido);
+            }
+        }
+        fclose(archi);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
