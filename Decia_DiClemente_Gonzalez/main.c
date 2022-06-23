@@ -58,11 +58,13 @@ void modificarDatosCliente (char archivo[],int opcion);
 
 
 
-// Funciones Listado de clientes
+/// Funciones Listado de clientes
 int BuscarPosMenor (stCliente cliente[],int pos,int validos);
 void ordenamientoPorSeleccionClientes (stCliente clientes[],int validos);
 int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension);
 void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos);
+void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos);
+void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]);
 
 ///Funciones pedidos
 void anularPedido (char archivo[]);
@@ -75,7 +77,7 @@ void modificacionDatosPedido (char archivo[],int opcion);
 int main()
 {
 
-    /// Variables varias
+    // Variable Archivo
     char arregloChar[30]={"ArchivoNumeros"};
 
     // Variables Menu
@@ -83,10 +85,10 @@ int main()
     char continuar = 's';
 
     // Variables switch para clientes
-
     int opcionCliente1;
 
     //Variables switch para pedidos
+    int opcionPedido;
 
     // Menu
     do {
@@ -160,7 +162,44 @@ int main()
 
     case 2:
 
-        printf("pedido");
+        do {
+            printf("\nIngrese que apartado quiere ver: \n1. Alta de Pedido\n");
+            printf("2. Baja de Pedido\n");
+            printf("3. Modificacion de Pedido\n");
+            printf("4. Listar Pedidos\n");
+
+            scanf("%i", &opcionPedido);
+
+            switch(opcionPedido)
+            {
+
+            //alta de pedido
+            case 1:
+
+                altaPedido(arregloChar);
+
+            break;
+
+            //baja de pedido
+            case 2:
+
+                anularPedido(arregloChar);
+
+            break;
+
+            //modificar pedido
+            case 3:
+
+                modificarPedido(arregloChar);
+
+            break;
+
+            //listar pedido
+
+
+
+            }
+        } while (continuar == 's');
 
     break;
 
@@ -264,8 +303,6 @@ void cargaDeClientes(stCliente  cliente){   /// Carga de clientes, se llama cuan
         scanf("%i", &cliente.movil);
 
 }
-
-
 
 void altaDeClientes(char arregloChar[]){
 
@@ -499,6 +536,94 @@ void modificarDatosCliente (char archivo[],int opcion){
     }
 }
 
+/// ================================= FUNCIONES PEDIDOS ===================================
+
+// Carga de Fecha para pedido
+void cargaFecha (stFecha fecha)
+{
+    printf("\nSe cargara la fecha de registro del pedido: ");
+
+    printf("\nIngrese Dia: ");
+    scanf("%i", &fecha.dia);
+
+    printf("\nIngrese Mes: ");
+    scanf("%i", &fecha.mes);
+
+    printf("\nIngrese Anio: ");
+    scanf("%i", &fecha.anio);
+}
+
+// Carga de Pedidos
+void cargaPedido(stPedido pedido){   /// Carga de clientes, se llama cuantas veces sea necesario en altaDeClientes
+
+    stFecha fecha;
+
+        printf("\nIngrese la descripcion del pedido: ");
+        fflush(stdin);
+        gets(pedido.descripcionPedido);
+
+        cargaFecha(fecha);
+
+        printf("\nIngrese el costo del pedido: ");
+        scanf("%i", &pedido.costoPedido);
+}
+
+void altaPedido(char archivo[]){
+
+    FILE * buff = fopen(archivo, "w+b");
+
+    char continuar = 's';
+
+    stPedido pedido;
+    stPedido pedidoAuxiliar;
+
+    printf("\nDe alta al pedido entrante, realice los siguientes pasos: \n");
+
+    if(buff!=NULL){
+
+        do{
+
+        fseek(buff, sizeof(stPedido) * -1, SEEK_END);
+
+        if(fread(&pedidoAuxiliar, sizeof(stPedido), 1, buff) == 0){
+
+            pedido.idPedido = 1;
+
+        }else {
+
+        pedido.idPedido = pedidoAuxiliar.idPedido + 1;
+
+        }
+
+        cargaPedido(pedido);
+
+        fwrite(&pedido, sizeof(stPedido), 1, buff);
+
+        printf("Desea seguir ingresando pedidos (S/N)? \n");
+        fflush(stdin);
+        scanf("%c", &continuar);
+
+        }while(continuar=='s');
+
+        fclose(buff);
+
+    }else{
+
+        printf("El Archivo no se pudo abrir\n");
+
+    }
+
+
+    printf("Desea ver todo lo que ha ingresado? (S/N) \n");
+    fflush(stdin);
+    scanf("%c", &continuar);
+
+    if(continuar=='s'){
+
+        verArchivo(archivo);
+
+    }
+}
 
 void anularPedido (char archivo[])
 {
@@ -732,3 +857,91 @@ void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos){
 }
 
 //Ordenados por método de inserción tomando en cuenta nombre Y apellido (ambos al mismo tiempo)
+
+void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos){
+
+    FILE * archi=fopen(arregloChar, "r+b");
+    stCliente cliente;
+    int j=1;
+    int i=0-1;
+    int flag=0;
+
+    char auxCliente[30];
+    char aux2Cliente[30];
+    char auxNombre[30];
+    char auxNombre2[30];
+    char auxApellido[30];
+    char auxApellido2[30];
+    char auxAuxNombre[30];
+    char auxAuxApellido[30];
+
+
+
+    if(archi!=NULL){
+
+        while((fread(&cliente, sizeof(stCliente), 1, archi))>0 && j<validos+1){
+
+
+            do{
+
+            flag=0;
+
+            strcpy(auxNombre, cliente.nombre);
+            strcpy(auxApellido, cliente.apellido);
+
+            unirApellidoNombre(cliente, auxCliente);
+
+            fseek(archi, sizeof(stCliente) * i+1, SEEK_SET);
+            fread(&cliente, sizeof(stCliente), 1, archi);
+
+            strcpy(auxNombre2, cliente.nombre);
+            strcpy(auxApellido2, cliente.apellido);
+
+            unirApellidoNombre(cliente, aux2Cliente);
+
+            if(strcmpi(auxCliente, aux2Cliente)==(0-1)){
+
+                strcpy(auxAuxNombre, auxNombre2);
+                strcpy(auxAuxApellido, auxApellido2);
+
+                strcpy(cliente.nombre, auxNombre);
+                strcpy(cliente.apellido, auxApellido);
+
+                i--;
+
+                fseek(archi, sizeof(stCliente) * i, SEEK_SET);
+
+                strcpy(cliente.nombre, auxNombre2);
+                strcpy(cliente.apellido, auxApellido2);
+                flag=1;
+
+            }else{
+
+                fseek(archi, sizeof(stCliente) * j, SEEK_SET);
+
+            }
+
+            }while(flag!=0);
+
+            i=j-1;
+            j++;
+
+        }
+
+    fclose(archi);
+
+    }else{
+
+        printf("No se pudo abrir el archivo\n");
+
+    }
+
+
+}
+
+void unirApellidoNombre(stCliente cliente, stCliente auxCliente[]){
+
+    strcat(auxCliente, cliente.nombre);
+    strcat(auxCliente, cliente.apellido);
+
+}
