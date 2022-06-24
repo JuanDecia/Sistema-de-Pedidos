@@ -50,10 +50,10 @@ typedef struct
 
 void pause();
 void altaDeClientes(char arregloChar[]);
-void cargaDeDomicilio(stCliente cliente);
-void cargaDeClientes(stCliente cliente);
+stCliente cargaDeClientes(stCliente clienteAuxiliar);
 void bajaDeClientes(char arregloChar[]);
 void modificarCliente (char archivo[]);
+void verArchivo(char arregloChar[]);
 void modificarDatosCliente (char archivo[],int opcion);
 
 
@@ -95,6 +95,7 @@ int main()
     int validos;
     char seleccion=' ';
     char continuar = 's';
+    int contador=0;
 
     // Variables switch para clientes
     int opcionCliente1;
@@ -108,12 +109,12 @@ int main()
     // Menu
     do {
 
-        printf("\nSeleccione: \n\n");
+        printf("\nQue apartado quiere acceder?: \n\n");
 
         printf("1. Clientes \n2. Pedidos \n\n");
         fflush(stdin);
         scanf("%i", &opcion);
-
+        system("cls");
 
     switch(opcion)
     {
@@ -128,6 +129,7 @@ int main()
             printf("4. Listar Clientes\n");
 
             scanf("%i", &opcionCliente1);
+            system("cls");
 
         switch(opcionCliente1){
 
@@ -183,11 +185,10 @@ int main()
 
         }
 
-        printf("\nDesea ingresar a otro apartado?\n");
+        printf("\nDesea ingresar a otro apartado?(S/N)\n");
         fflush(stdin);
         scanf("%c", &continuar);
-
-
+        system("cls");
 
         }while (continuar == 's');
 
@@ -204,6 +205,7 @@ int main()
             printf("4. Listar Pedidos\n");
 
             scanf("%i", &opcionPedido);
+            system("cls");
 
             switch(opcionPedido)
             {
@@ -258,6 +260,7 @@ int main()
         printf("\nDesea seguir operando? (S/N): ");
         fflush(stdin);
         scanf("%c", &continuar);
+        system("cls");
 
     } while (continuar == 's');
 
@@ -283,74 +286,68 @@ void verArchivo(char arregloChar[]){   /// Lee lo que el usuario haya ingresado 
 
     stCliente cliente;
 
-    if(archivo!=NULL){
+    printf("\n--------------------------------------------------------------\n");
 
-        while(!feof(archivo)){
+    while((fread(&cliente, sizeof(stCliente), 1, archivo))>0){
 
-            fread(&cliente, sizeof(stCliente), 1, archivo);
+        if(cliente.bajaCliente<1){
+
+            printf("\nID: %i\n", cliente.idCliente);
 
             printf("Nombre y apellido: ");
             puts(cliente.nombre);
-            printf("%s", cliente.apellido);
+            puts(cliente.apellido);
 
             printf("\nDomicilio: ");
-            printf("%s", cliente.domicilio.nombreCalle);
-            printf(" %i", cliente.domicilio.alturaCalle);
+            puts(cliente.domicilio.nombreCalle);
+            printf(" %i\n", cliente.domicilio.alturaCalle);
 
             printf("\nMail: ");
-            printf("%s", cliente.mail);
+            puts(cliente.mail);
 
             printf("\nMovil: ");
             printf("%i", cliente.movil);
+            printf("\n\n");
 
+            printf("\n--------------------------------------------------------------\n");
         }
-
-        fclose(archivo);
-
-    }else{
-
-        printf("No se pudo abrir el archivo\n");
 
     }
 
 }
 
 
-void cargaDeDomicilio(stCliente cliente){  /// Funcion exclusivamente para cargar el domicilio
+stCliente cargaDeClientes(stCliente clienteAuxiliar){   /// Carga de clientes, se llama cuantas veces sea necesario en altaDeClientes
+
+    printf("\nIngrese el nombre del cliente: ");
+    fflush(stdin);
+    gets(clienteAuxiliar.nombre);
+
+    printf("\nIngrese el apellido del cliente: ");
+    fflush(stdin);
+    gets(clienteAuxiliar.apellido);
 
     printf("\nIngrese el nombre de la calle del domicilio: ");
     fflush(stdin);
-    gets(cliente.domicilio.nombreCalle);
+    gets(clienteAuxiliar.domicilio.nombreCalle);
 
     printf("\nIngrese la altura de la calle: ");
-    scanf("%i", &cliente.domicilio.alturaCalle);
+    scanf("%i", &clienteAuxiliar.domicilio.alturaCalle);
 
-}
+    printf("\nIngrese el mail del cliente: ");
+    fflush(stdin);
+    gets(clienteAuxiliar.mail);
 
-void cargaDeClientes(stCliente  cliente){   /// Carga de clientes, se llama cuantas veces sea necesario en altaDeClientes
+    printf("\nIngrese el movil del cliente: ");
+    scanf("%i", &clienteAuxiliar.movil);
 
-        printf("\nIngrese el nombre del cliente: ");
-        fflush(stdin);
-        gets(cliente.nombre);
-
-        printf("\nIngrese el apellido del cliente: ");
-        fflush(stdin);
-        gets(cliente.apellido);
-
-        cargaDeDomicilio(cliente);
-
-        printf("\nIngrese el mail del cliente: ");
-        fflush(stdin);
-        gets(cliente.mail);
-
-        printf("\nIngrese el movil del cliente: ");
-        scanf("%i", &cliente.movil);
+        return clienteAuxiliar;
 
 }
 
 void altaDeClientes(char arregloChar[]){
 
-    FILE * archivo=fopen(arregloChar, "w+b");
+    FILE * archivo=fopen(arregloChar, "ab");
 
     char continuar = 's';
     stCliente cliente;
@@ -362,7 +359,7 @@ void altaDeClientes(char arregloChar[]){
 
         do{
 
-        fseek(archivo, sizeof(stCliente)*-1, SEEK_END);
+        fseek(archivo, sizeof(stCliente)*-1, SEEK_CUR);
 
         if(fread(&clienteAuxiliar, sizeof(stCliente), 1, archivo)==0){
 
@@ -370,11 +367,13 @@ void altaDeClientes(char arregloChar[]){
 
         }else{
 
-        cliente.idCliente = clienteAuxiliar.idCliente + 1;
+            cliente.idCliente = clienteAuxiliar.idCliente + 1;
 
         }
 
-        cargaDeClientes(cliente);
+        clienteAuxiliar=cargaDeClientes(clienteAuxiliar);
+
+        cliente=clienteAuxiliar;
 
         fwrite(&cliente, sizeof(stCliente), 1, archivo);
 
@@ -383,8 +382,6 @@ void altaDeClientes(char arregloChar[]){
         scanf("%c", &continuar);
 
         }while(continuar=='s');
-
-        fclose(archivo);
 
     }else{
 
@@ -404,17 +401,21 @@ void altaDeClientes(char arregloChar[]){
     }
 
 
+    fclose(archivo);
+
+
 }
 
 /// Baja de clientes
 
 void bajaDeClientes(char arregloChar[]){
 
-    FILE * archivo = fopen(arregloChar, "rb");
+    FILE * archivo = fopen(arregloChar, "r+b");
 
     stCliente cliente;
 
     int idAux;
+    char opcion='s';
 
     if(archivo != NULL){
 
@@ -424,11 +425,25 @@ void bajaDeClientes(char arregloChar[]){
 
         while(!feof(archivo)){
 
+            fseek(archivo, sizeof(stCliente) * -1, SEEK_SET);
+
             if((fread(&cliente.idCliente, sizeof(stCliente), 1, archivo)==idAux)){  /// Encuentra el id de cliente a bajar
 
                 cliente.bajaCliente=1;  /// Por si se tiene que ver el cliente bajado la condicion es 1 en bajaCliente
 
+                fwrite(&cliente, sizeof(stCliente), 1, archivo);
+
             }
+
+        }
+
+        printf("Quiere ver los clientes? (S/N)\n");
+        fflush(stdin);
+        scanf("%c", &opcion);
+
+        if(opcion=='s'){
+
+            verArchivo(arregloChar);
 
         }
 
@@ -446,14 +461,12 @@ void bajaDeClientes(char arregloChar[]){
 
 void modificarCliente (char archivo[])
 {
-    FILE * buff;
-
-    buff = fopen(archivo, "r+b");
+    FILE * buff=fopen(archivo, "r+b");
 
     stCliente cliente;
 
 
-    char continuar = ' ';
+    char continuar = 's';
     int auxID;
 
     // Variables para el switch
@@ -1038,6 +1051,7 @@ void listarPedidos(char arregloChar[], int contadorPedidos[]){
         printf("Ingrese el apartado: ");
         scanf("%i", &opcion);
         printf("\n");
+        system("cls");
 
         switch(opcion){
 
@@ -1081,6 +1095,7 @@ void listarPedidos(char arregloChar[], int contadorPedidos[]){
         printf("Quiere seguir? S/N");
         fflush(stdin);
         scanf("%c", &seguir);
+        system("cls");
 
     }while(seguir=='s');
 
