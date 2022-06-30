@@ -55,6 +55,7 @@ void bajaDeClientes(char arregloChar[]);
 void modificarCliente (char archivo[]);
 void verArchivo(char arregloChar[]);
 void modificarDatosCliente (char archivo[],int opcion);
+void cargarBaja(stCliente auxCliente[], char arregloChar[], int i, int pos);
 
 
 /// Funciones Listado de clientes
@@ -495,16 +496,17 @@ void buscarClientePorID (char NombreArch[],int id){
 
 /// Baja de clientes
 
-void cargarBaja(stCliente auxCliente[], char arregloChar[], int i, int idAux){
+void cargarBaja(stCliente auxCliente[], char arregloChar[], int i, int pos){
 
     FILE * archivo=fopen(arregloChar, "wb");
 
     stCliente cliente;
+    int x=0;
     int j=0;
 
     while(j<i){
 
-        if(auxCliente[i].idCliente==idAux){
+        if(x==pos){
 
             cliente.bajaCliente=1;
 
@@ -514,19 +516,23 @@ void cargarBaja(stCliente auxCliente[], char arregloChar[], int i, int idAux){
 
         }
 
-        cliente.idCliente=auxCliente[i].idCliente;
-        strcpy(cliente.nombre, auxCliente[i].nombre);
-        strcpy(cliente.apellido, auxCliente[i].apellido);
-        strcpy(cliente.domicilio.nombreCalle, auxCliente[i].domicilio.nombreCalle);
-        cliente.domicilio.alturaCalle=auxCliente[i].domicilio.alturaCalle;
-        strcpy(cliente.mail, auxCliente[i].mail);
-        cliente.movil=auxCliente[i].movil;
+        cliente.idCliente=auxCliente[j].idCliente;
+        strcpy(cliente.nombre, auxCliente[j].nombre);
+        strcpy(cliente.apellido, auxCliente[j].apellido);
+        strcpy(cliente.domicilio.nombreCalle, auxCliente[j].domicilio.nombreCalle);
+        cliente.domicilio.alturaCalle=auxCliente[j].domicilio.alturaCalle;
+        strcpy(cliente.mail, auxCliente[j].mail);
+        cliente.movil=auxCliente[j].movil;
 
 
+        fwrite(&cliente, sizeof(stCliente), 1, archivo);
 
+        x=x+1;
         j=j+1;
 
     }
+
+    fclose(archivo);
 
 
 }
@@ -555,23 +561,32 @@ void bajaDeClientes(char arregloChar[]){
 
             if(cliente.idCliente==idAux){
 
-                fseek(archivo, sizeof(stCliente) * pos, 0);
+                fseek(archivo, sizeof(stCliente) * 0, SEEK_SET);
 
                 while((fread(&cliente, sizeof(stCliente), 1, archivo))>0){
 
-                    auxCliente[i]=cliente;
+                    auxCliente[i].idCliente=cliente.idCliente;
+                    strcpy(auxCliente[i].nombre, cliente.nombre);
+                    strcpy(auxCliente[i].apellido, cliente.apellido);
+                    strcpy(auxCliente[i].domicilio.nombreCalle, cliente.domicilio.nombreCalle);
+                    auxCliente[i].domicilio.alturaCalle=cliente.domicilio.alturaCalle;
+                    strcpy(auxCliente[i].mail, cliente.mail);
+                    auxCliente[i].movil=cliente.movil;
+
 
                     i=i+1;
 
                 }
 
+
+
+                cargarBaja(auxCliente, arregloChar, i, pos);
                 fclose(archivo);
+                flag=flag+1;
 
-                cargarBaja(auxCliente, arregloChar, i, idAux);
-
-                flag=1;
 
             }
+
             pos=pos+1;
 
 
