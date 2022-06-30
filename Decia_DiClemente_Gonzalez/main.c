@@ -50,7 +50,7 @@ typedef struct
 
 void pause();
 void altaDeClientes(char arregloChar[]);
-stCliente cargaDeClientes(stCliente clienteAuxiliar);
+stCliente cargaDeClientes();
 void bajaDeClientes(char arregloChar[]);
 void modificarCliente (char archivo[]);
 void verArchivo(char arregloChar[]);
@@ -64,6 +64,8 @@ int pasarArchivoToArreglo (char nombreArch[],stCliente clientes[],int dimension)
 void pasarArregloToArchivo (char nombreArch[],stCliente clientes[],int validos);
 void ordenamientoPorInsercionNombreApellido(char arregloChar[], int validos);
 void unirApellidoNombre(stCliente cliente, char auxCliente[]);
+void cargarBaja(stCliente auxCliente[], char arregloChar[], int i, int idAux);
+
 
 ///Funciones pedidos
 void anularPedido (char archivo[]);
@@ -286,102 +288,135 @@ void verArchivo(char arregloChar[]){   /// Lee lo que el usuario haya ingresado 
 
     stCliente cliente;
 
-    printf("\n--------------------------------------------------------------\n");
+    if(archivo!=NULL){
 
-    while((fread(&cliente, sizeof(stCliente), 1, archivo))>0){
+        while((fread(&cliente, sizeof(stCliente), 1, archivo))>0){
 
-        if(cliente.bajaCliente<1){
+            if((cliente.bajaCliente)==0){
 
-            printf("\nID: %i\n", cliente.idCliente);
+                mostrarCliente(cliente);
 
-            printf("Nombre y apellido: ");
-            puts(cliente.nombre);
-            puts(cliente.apellido);
+            }
 
-            printf("\nDomicilio: ");
-            puts(cliente.domicilio.nombreCalle);
-            printf(" %i\n", cliente.domicilio.alturaCalle);
-
-            printf("\nMail: ");
-            puts(cliente.mail);
-
-            printf("\nMovil: ");
-            printf("%i", cliente.movil);
-            printf("\n\n");
-
-            printf("\n--------------------------------------------------------------\n");
         }
+
+        puts("\n------------------\n");
+
+
+    }else{
+
+        printf("No se pudo abrir el archivo\n");
 
     }
 
+    fclose(archivo);
+
+}
+
+void mostrarCliente(stCliente cliente){
+
+    puts("\n------------------\n");
+
+    printf("%i\n", cliente.bajaCliente);
+
+    printf("ID del cliente: %d",cliente.idCliente);
+
+    printf("\nNombre y apellido: %s ",cliente.nombre);
+    printf("%s", cliente.apellido);
+
+    printf("\nDomicilio: ");
+    printf("%s", cliente.domicilio.nombreCalle);
+    printf(" %i", cliente.domicilio.alturaCalle);
+
+    printf("\nMail: ");
+    printf("%s", cliente.mail);
+
+    printf("\nMovil: ");
+    printf("%i", cliente.movil);
+    printf("\n");
+
 }
 
 
-stCliente cargaDeClientes(stCliente clienteAuxiliar){   /// Carga de clientes, se llama cuantas veces sea necesario en altaDeClientes
+stCliente cargaDeClientes(){   /// Carga de clientes, se llama cuantas veces sea necesario en altaDeClientes
 
-    printf("\nIngrese el nombre del cliente: ");
-    fflush(stdin);
-    gets(clienteAuxiliar.nombre);
 
-    printf("\nIngrese el apellido del cliente: ");
-    fflush(stdin);
-    gets(clienteAuxiliar.apellido);
+        stCliente cliente;
 
-    printf("\nIngrese el nombre de la calle del domicilio: ");
-    fflush(stdin);
-    gets(clienteAuxiliar.domicilio.nombreCalle);
 
-    printf("\nIngrese la altura de la calle: ");
-    scanf("%i", &clienteAuxiliar.domicilio.alturaCalle);
+        printf("\nIngrese el ID del cliente: ");
+        fflush(stdin);
+        scanf("%d",&cliente.idCliente);
 
-    printf("\nIngrese el mail del cliente: ");
-    fflush(stdin);
-    gets(clienteAuxiliar.mail);
+        printf("\nIngrese el nombre del cliente: ");
+        fflush(stdin);
+        gets(cliente.nombre);
 
-    printf("\nIngrese el movil del cliente: ");
-    scanf("%i", &clienteAuxiliar.movil);
+        printf("\nIngrese el apellido del cliente: ");
+        fflush(stdin);
+        gets(cliente.apellido);
 
-        return clienteAuxiliar;
+        printf("\nIngrese el nombre de la calle del domicilio: ");
+        fflush(stdin);
+        gets(cliente.domicilio.nombreCalle);
+
+        printf("\nIngrese la altura de la calle: ");
+        scanf("%i", &cliente.domicilio.alturaCalle);
+
+        printf("\nIngrese el mail del cliente: ");
+        fflush(stdin);
+        gets(cliente.mail);
+
+        printf("\nIngrese el movil del cliente: ");
+        scanf("%i", &cliente.movil);
+        printf("\n");
+
+        cliente.bajaCliente=0;
+
+
+        return cliente;
 
 }
+
+
 
 void altaDeClientes(char arregloChar[]){
 
-    FILE * archivo=fopen(arregloChar, "ab");
+    FILE * archi=fopen(arregloChar, "a+b");
 
-    char continuar = 's';
+    char control = 's';
     stCliente cliente;
-    stCliente clienteAuxiliar;
+
 
     printf("Va a ingresar los datos de los clientes tal como se le pida\n");
 
-    if(archivo!=NULL){
+    if(archi!=NULL){
 
-        do{
+       while(control=='s'){
 
-        fseek(archivo, sizeof(stCliente)*-1, SEEK_CUR);
+            cliente=cargaDeClientes();
 
-        if(fread(&clienteAuxiliar, sizeof(stCliente), 1, archivo)==0){
+            if((buscarID(archi, cliente.idCliente))==0){
 
-            cliente.idCliente=1;
+                fopen(arregloChar, "a+b");
 
-        }else{
+                fwrite(&cliente, sizeof(stCliente),1,archi);
 
-            cliente.idCliente = clienteAuxiliar.idCliente + 1;
+            }else{
+
+                printf("\nEl ID ingresado ya esta en uso con el siguiente cliente: ");
+                buscarClientePorID(arregloChar,cliente.idCliente);
+                printf("\n");
+
+            }
+
+
+            printf("Desea agregar otro? s/n\n");
+            fflush(stdin);
+            scanf("%c",&control);
+
 
         }
-
-        clienteAuxiliar=cargaDeClientes(clienteAuxiliar);
-
-        cliente=clienteAuxiliar;
-
-        fwrite(&cliente, sizeof(stCliente), 1, archivo);
-
-        printf("Desea seguir ingresando clientes? (s=Si / n=No)\n");
-        fflush(stdin);
-        scanf("%c", &continuar);
-
-        }while(continuar=='s');
 
     }else{
 
@@ -389,53 +424,183 @@ void altaDeClientes(char arregloChar[]){
 
     }
 
+    fclose(archi);
 
     printf("Desea ver todo lo que ha ingresado? (s=Si / n=No)\n");
     fflush(stdin);
-    scanf("%c", &continuar);
+    scanf("%c", &control);
 
-    if(continuar=='s'){
+    if(control=='s'){
 
         verArchivo(arregloChar);
 
     }
 
 
-    fclose(archivo);
+}
 
+
+int buscarID(FILE *archi, int id)
+{
+    ///duvuelve 1 si el id existe
+
+    stCliente e;
+    int flag =0;
+    rewind(archi);
+
+
+    if(archi)
+    {
+        while(flag == 0 && (fread(&e, sizeof(stCliente), 1, archi))>0)
+        {
+
+            if(e.idCliente==id)
+            {
+                flag=1;
+            }
+
+        }
+
+        fclose(archi);
+
+    }
+
+    return flag;
+}
+
+void buscarClientePorID (char NombreArch[],int id){
+
+    FILE * archi=fopen(NombreArch,"rb");
+    stCliente aux;
+
+    if(archi!=NULL){
+
+        while((fread(&aux,sizeof(stCliente),1,archi))>0){
+
+            if(aux.idCliente==id){
+
+                mostrarCliente(aux);
+
+            }
+
+            puts("\n------------------\n");
+
+        }
+
+        fclose(archi);
+
+    }
 
 }
 
 /// Baja de clientes
 
-void bajaDeClientes(char arregloChar[]){
+void cargarBaja(stCliente auxCliente[], char arregloChar[], int i, int idAux){
 
-    FILE * archivo = fopen(arregloChar, "r+b");
+    FILE * archivo=fopen(arregloChar, "wb");
 
     stCliente cliente;
+    int j=0;
 
+    while(j<i){
+
+        if(auxCliente[i].idCliente==idAux){
+
+            cliente.bajaCliente=1;
+
+        }else{
+
+            cliente.bajaCliente=0;
+
+        }
+
+        cliente.idCliente=auxCliente[i].idCliente;
+        strcpy(cliente.nombre, auxCliente[i].nombre);
+        strcpy(cliente.apellido, auxCliente[i].apellido);
+        strcpy(cliente.domicilio.nombreCalle, auxCliente[i].domicilio.nombreCalle);
+        cliente.domicilio.alturaCalle=auxCliente[i].domicilio.alturaCalle;
+        strcpy(cliente.mail, auxCliente[i].mail);
+        cliente.movil=auxCliente[i].movil;
+
+
+
+        j=j+1;
+
+    }
+
+
+}
+
+
+void bajaDeClientes(char arregloChar[]){
+
+    FILE * archivo = fopen(arregloChar, "rb");
+
+    stCliente cliente;
+    stCliente auxCliente[30];
+
+    int pos=0;
+    int i=0;
     int idAux;
+    int flag=0;
     char opcion='s';
 
     if(archivo != NULL){
 
-        printf("Que cliente quiere darle de baja? Ingrese el ID de este: ");
+        printf("Que cliente/a quiere darle de baja? Ingrese el ID de este: ");
         scanf("%i", &idAux);
         printf("\n");
 
-        while(!feof(archivo)){
+        while((fread(&cliente, sizeof(stCliente), 1, archivo))>0){
 
-            fseek(archivo, sizeof(stCliente) * -1, SEEK_SET);
+            if(cliente.idCliente==idAux){
 
-            if((fread(&cliente.idCliente, sizeof(stCliente), 1, archivo)==idAux)){  /// Encuentra el id de cliente a bajar
+                fseek(archivo, sizeof(stCliente) * pos, 0);
 
-                cliente.bajaCliente=1;  /// Por si se tiene que ver el cliente bajado la condicion es 1 en bajaCliente
+                while((fread(&cliente, sizeof(stCliente), 1, archivo))>0){
 
-                fwrite(&cliente, sizeof(stCliente), 1, archivo);
+                    auxCliente[i]=cliente;
 
+                    i=i+1;
+
+                }
+
+                fclose(archivo);
+
+                cargarBaja(auxCliente, arregloChar, i, idAux);
+
+                flag=1;
+
+            }
+            pos=pos+1;
+
+
+            if((fread(&cliente, sizeof(stCliente), 1, archivo))==0){
+
+                if(flag!=1){
+
+                    printf("No se ha encontrado ese ID, quiere ingresar otro ID? (S/N)\n");
+                    fflush(stdin);
+                    scanf("%c", &opcion);
+
+                    if(opcion=='s'){
+
+                        scanf("%i", &idAux);
+                        fseek(archivo, sizeof(stCliente) * 0 , 0);
+
+                    }
+
+                }
             }
 
         }
+
+        pos=0;
+
+
+        opcion='s';
+
+
 
         printf("Quiere ver los clientes? (S/N)\n");
         fflush(stdin);
@@ -447,7 +612,7 @@ void bajaDeClientes(char arregloChar[]){
 
         }
 
-        fclose(archivo);
+
 
     }else{
 
